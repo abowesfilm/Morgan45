@@ -1,0 +1,615 @@
+
+
+<html>
+    <!-- Tribute to 2025 by Thomas Colthurst -->
+    <!-- Original at https://thomaswc.com/2025.html -->
+    <!-- Released under a Creative Commons Share Alike with Attribution License -->
+    <!-- See https://creativecommons.org/licenses/by-sa/4.0/ -->
+    <title>Morgan 45x45</title>
+    <style>
+        body {
+  background-color: white; /* Or #fff or #ffffff */
+}
+
+.bigbut {
+width:100%; height:100%; display:block;
+}
+
+.shake {
+  animation: shake 0.5s;
+  animation-iteration-count: 1;
+}
+
+.numCirc {
+    border-radius: 70%;
+    background: white; /* #fff; */
+    border: 2px solid red; /* #666; */
+    color: red; /* #666; */
+    text-align: center;
+}
+
+.red {
+  color: red;
+}
+
+.floating {
+    position: fixed;
+    z-index: 999;
+    background-color: lightblue;
+}
+
+#fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+@keyframes shake {
+  0% { transform: translateX(1px) rotate(0deg); }
+  10% { transform: translateX(-1px) rotate(-1deg); }
+  20% { transform: translateX(-3px) rotate(1deg); }
+  30% { transform: translateX(3px) rotate(0deg); }
+  40% { transform: translateX(1px) rotate(1deg); }
+  50% { transform: translateX(-1px) rotate(-1deg); }
+  60% { transform: translateX(-3px) rotate(0deg); }
+  70% { transform: translateX(3px) rotate(-1deg); }
+  80% { transform: translateX(-1px) rotate(1deg); }
+  90% { transform: translateX(1px) rotate(0deg); }
+  100% { transform: translateX(1px) rotate(-1deg); }
+}
+    </style>
+    <body>
+        <canvas id="fireworks"></canvas>
+<div class="floating">
+   Make 45 groups of 45!  (By combining two at a time.) &nbsp;
+   Score: <span id="score">0</span> &nbsp; Mistakes: <span id="mistakes">0</span> &nbsp;
+    <button type="button" id="deselect" style="" disabled onclick="deselect()">Deselect</button>
+</div>
+<div style="padding-top: 16px; position: absolute" id="board"></div>
+
+    </body>
+        <script>
+        // Bugs: 
+        // 1) Unicode not rendering properly inside buttons on Chrome.
+        // Feature requests:
+        // 1) Don't penalize already guessed.
+        
+        // Globals
+        const M = 45;  // Board size
+            
+        var score = 0;
+        var mistakes = 0;
+        
+        var selected = 0;  // The currently selected button, if any.
+        
+        var wordlist = [];  // Actually, a list of (word, category) pairs
+    
+
+        // The categories.
+        
+        var cats = {};
+            
+            // #1.  Censored:  
+            cats["Nic Cage Movies"] = ["Valley Girl","Rumble Fish","Racing with the Moon","The Cotton Club","Birdy","Moonstruck","Time to Kill","Face/Off","Deadfall","The Rock","Bel Air","Next","G–Force","Astro Boy","The Trust","Rage","The Croods","Sympathy for the Devil","The Surfer","Fast Times at Ridgemont High","Grand Isle","Looking Glass","The Sorcerer's Apprentice","National Treasure","Lord of War","The Old Way","It Could Happen to You","Trapped in Paradise","Ghost Rider","Season of the Witch","Spider-Man: Into the Spider-Verse","Arcadian","Gone in 60 Seconds","Snake Eyes","Knowing","Longlegs","The Family Man","Leaving Las Vegas","Mandy","City of Angels","Drive Angry","Dream Scenario","8MM","Peggy Sue Got Married","Raising Arizona"];
+            
+            // #2
+            cats["Wines"] = ["Bandol","Barbera","Brunello","Brut","Cabernet Sauvignon","Cava","Champagne","Chardonnay","Chenin Blanc","Chianti","Cortese","Fronsac","Gamay","Garganega","Gewurztraminer","Grenache","Lambrusco","Madeira","Malbec","Marsala","Merlot","Moscato","Nero Buono","Pinot Grigio","Pinot Noir","Pinotage","Port","Primitivo","Prosecco","Riesling","Rosado","Sancerre","Sangiovese","Sauvignon Blanc","Semillon","Sherry","Shiraz","Taurasi","Tempranillo","Tokaji","Vermentino","Viognier","Wurzer","Zinfandel ","Zweigelt"
+];
+            
+            // #3.  Censored:  
+            cats["Pigeon Breeds"] = ["Antwerp Smerle","Anatolian Ringbeater","Aachen Cropper","American Roller","Ancient Tumbler","Bango","Beauty Homer de Lige","Bergamasco","Berlin Medium-faced Tumbler","Berne Gugger","Bohemian Fairy Swallow","Bokhara Trumpeter","Borino","Carneau","Cauchois","Chorrera","Cumulet","Crescent","Damascene","Dragoon","Helmet","English Barb","Fantail","Nun","Tippler","Florentine","French Mondain","Frillback","Gaditano Pouter","Gier","Gola","Huppé Picard","Hyacinth","Black Barb","Sottobanca","Jacobin","Archangel","Lahore","Lebanon","Maltese","Mariola","Modena","Mookee","Poster","Saint"];
+
+            // #4.  Censored: 
+            cats["Say Yes to the Dress Episodes"] = ["I'm Gonna Be the Problem Child Here","Back, Biceps, and Booty","Let's Give the Man What He Wants","Not a Good Day, an Incredible Day","That's Bold","It's Gotta Be... Substantial","Nobody Suspects a Thing","Diva With a Capital D","Is Anyone Even Listening to Me?","A Season of Surprises","Mom, You've Said Just Enough","Ugly Duckling","The Struggle is Real","I'm Not Crying, You're Crying","I'm Going by the Feel","From Snickers Bar to Caviar","Whose Side Are You On?","This Is a Randy Situation","You Look Like a Chicken!","Hollywood Meets Bollywood","I Wanna Be Naked","Bedazzled Truck Driver","Cinderella Gone Wrong","Fashionably Late","Celebrating Michigan","Love at First Flight","Bionic Bride","Cheetah Bride","Celebrating Massachusetts","7 People With 7 Opinions","A Purple Unicorn","Coco Is Not Impressed","I'm Having a Moment","The Twins Are Back","Everything is on the Line","Total Control","Overwhelmed","This Is My Fiance and His Wife","We Don't Do Anything Normal","Not Hell nor High Water","There's a New Guy in Town","Come on in, Grandma!","I'm a Firm Believer in Signs","Sexy Sells","Booby Trap"];
+            
+            // #5
+            cats["Extinct Animals"] = ["American Cheetah","American Lion","Archaeopteryx","Argentavis","Atlas Bear","Baiji","Bali Tiger","Bluebuck","Bramble Cay Melomys","Bubal Hartebeest","California Grizzly Bear","Desert Bandicoot","Dire Wolf","Dodo","Elephant Bird","Eurasian Aurochs","Golden Toad","Great Auk","Ground Sloth","ʻŌʻū","Irish Elk","Japanese Otter","Japanese Wolf","Labrador Duck","Lesser Bilby","Moa","Mysterious Starling","Quagga","Carolina Parakeet","Rusty Numbat","Saber Toothed Tiger","Tahiti Rail","Tarpan","Toolache Wallaby","Thylacine","Tiktaalik","Wooly Mammoth","Steller's Sea Cow","Southern Black Rhino","Portuguese Ibex","Harelip Sucker","Bulldog Rat","Florida Black Wolf","Smooth Handfish","Bibron's Skink"];
+
+            // #6
+            cats["DC Characters"] = ["Batman","Superman","Wonder Woman","Green Lantern","Hawkwoman","Supergirl","Superboy","Nightwing","Red Hood","Red Robin","Robin","Black Canary","Metamorpho","Martian Manhunter","Harley Quinn","Poison Ivy","The Joker","Condiment Man","Mr. Freeze","Bane","Raz al Ghul","Talia al Ghul","Two Face","The Penguin","Carmine Falcone","Catwoman","Ghost-Maker","Scarecrow","Clayface","Black Bat","Spoiler","Oracle","Signal","Batwoman","Batgirl","Huntress","Alfred Pennyworth","Orphan","Lex Luther","Killer Croc","Mad Hatter","Starfire","Raven","Beast Boy","Cyborg"];
+
+             // #7.  Censored:  
+             cats["Cognates"] = ["Global","Agenda","Alcohol","Animal","Area","Auto","Balance","Base","Canal","Capital","Central","Chocolate","Circular","Civil","Collar","Conclusión","Funeral","Control","Criminal","Debate","Decisión","Disco","División","Fatal","Drama","Durable ","Editorial","Electoral","Elemental","Error","Explosión","Exterior","Horror","Hospital","Hotel","Múltiple","Musical","Natural","Normal","Original","Patio","Personal","Plaza","Plural","Probable"];
+             
+             // #8.  Censored: 
+             cats["Lady Gaga Songs"] = ["1000 Doves","911","Abracadabra","Alejandro","Alice","Can't Stop the High","Angel Down","Applause","ARTPOP","Aura","Babylon","Bad Romance","Bloody Mary","Born This Way","Brown Eyes","Die with a Smile","Disco Heaven","Disease","Garden of Eden","Hair","Heavy Metal Lover","I Like It Rough","Joanne","Judas","Just Dance","LoveGame","Manicure","Marry The Night","Monster","Paparazzi","Plastic Doll","Poker Face","Speechless","Starstruck","Stupid Love","Teeth","Telephone","The Beast","The Cure","The Edge of Glory","The Fame","Vanity","Venus","You and I","Rain on Me"];
+
+              // #9.  Censored: 
+              cats["Art Materials"] = ["Eraser","Charcoal","Pencil","Oil","Pastel","Acrylic","Gouache","Sculpture","Intaglio","Lithography","Colored Pencil","Cyanotype","Relief Print","Lost-wax Casting","Encaustic","Collage","Screenprint","Ceramic","Pottery","Glass Blowing","Fresco","Chalk","Conté","Mezzotint","Ink","Weaving","Tempera","Watercolor","Scratchboard","Engraving","Quilt","Pen","Assemblage","Glitter","Photography","Art Books","Gesso","Latex","Canvas","Spray Paint","Welding","Airbrush","Palette","Mosaic","Comics"];
+              
+              // #10
+              cats["Coffee Drinks"] = ["Espresso","Drip-brewed","French press","Cold brew","Doppio","Americano","Latte","Cortado","Flat white","Crema","Ristretto","Moka","Mocha","Cappuccino","Macchiato","Frappé","Instant","Decaf","Dirty chai","Brevé","Iced","Dalgona","Miel","Lungo","Red-eye","Nitro cold brew","Mazagran","Latte macchiato","Affogato","Café au lait","Irish","Vienna","Con panna","Turkish","Cuban","Galão","Shakerato","Siphon","Pourover","Romano","Bicerin","Raf","Freddo","Laccino","Vietnamese"];
+              
+              // #11 Censored: 
+              cats["Cinderella Stories"] = ["The Wonderful Birch","Fair, Brown, and Trembling","Cendrillon","Aschenputtel","The Rough-Face Girl","Chinye","The Golden Sandal","Adelita","Domitila","Yeh-Shen","Angkat","Jouanah","Anklet for a Princess","Tấm and Cám","Mufaro's Beautiful Daughters","Ye Xian","La Gatta Cenerentola","Rhodopis","The Gift of the Crocodile","Ċiklemfusa","The Little Glass Slipper","Kongjwi and Patjwi","Katie Woodencloak","The Sharp Grey Sheep","Donkeyskin","Ella Enchanted","Ever After","Into the Woods","Confessions of an Ugly Stepsister","Cinder","The Orphan","Princess of Glass","Just Ella","Cinders","The Stepsister's Tale","Geekerella","Raisel's Riddle","Before Midnight","So This is Love","Ash","Cindy","The Slipper and the Rose","An Offer from a Gentleman","A Kiss at Midnight","Mr. Cinders"];
+              
+              // #12.  Censored:  
+              cats["Animal Crossing Characters"] = ["Blathers","Brewster","C.J.","Celeste","Daisy Mae","Dr. Shrunk","Flick","Franklin","Gracie","Gullivarrr","Gulliver","Cyrus","Harvey","Isabella","Jingle","K.K. Slider","Kapp'n","Katrina","Kicks","Label","Leif","Lloid","Luna","Lyle","Mable","Mr. Resetti","Orville","Pascal","Pavé","Pelly","Pete","Phyllis","Redd","Reese","Rover","Sable","Saharah","Timmy","Tom Nook","Tommy","Tortimer","Wardell","Wilbur","Wisp","Zipper T. Bunny"];
+              
+              // #13.  Censored: 
+              cats["Fruit"] = ["Apple","Apricot","Banana","Blackberry","Blueberry","Boysenberry","Cherimoya","Cherry","Clementine","Cranberry","Date","Dragon Fruit","Durian","Fig","Grape","Grapefruit","Guava","Honeydew","Jujube","Kiwi","Kumquat","Lemon","Lime","Lychee","Mandarin","Mango","Mangosteen","Melon","Minneola","Nectarine","Orange","Papaya","Peach","Pear","Persimmon","Pineapple","Plum","Pomegranate","Pomelo","Rambutan","Satsuma","Strawberry","Tangelo","Tangerine","Watermelon"];
+              
+              // #14.  Censored:  
+              cats["Cookies"] = ["Adventureful","Biscoff","Biscotti","Butter","Chocolate Chip","Coconut Macaroon","Crinkle","Do-si-do","Double Chocolate","Fortune","Rum Ball","Gingersnap","Half Moon","Haystack","Jammie Dodger","Ladyfinger","Linzer","Lofthouse","Ma'amoul","Macaron","Meringue","Mexican Wedding","Molasses","Oatmeal Raisin","Oreo","Peanut Butter Blossom","Pecan Sandie","Pineapple Tart","Pinwheel","Pizzelle","Rosette","Samoa","Shortbread","Snickerdoodle","Spritz","Stroopwafel","Sugar","Tagalong","Tahini","Thin Mint","Thumbprint","Almond","Wafer","White Chocolate Macadamia","Whoopie Pie"];
+              
+              // #15
+              cats["Taskmaster Contestants"] = ["Aisling Bea","Andy Zaltzman","Ania Magliano","Bob Mortimer","Dara Ó Briain","Ed Gamble","Fatiha El-Ghorri","Fern Brady","Guz Khan","Iain Stirling","James Acaster","Jason Mantzoukas","John Robins","Johnny Vegas","Josh Widdicombe","Judi Love","Katherine Ryan","Kerry Godliman","Liza Tarbuck","Lou Sanders","Mae Martin","Maisie Adam","Mathew Baynton","Mawaan Rizwan","Mike Wozniak","Morgana Robinson","Nish Kumar","Noel Fielding","Phil Wang","Reece Shearsmith","Richard Herring","Rob Beckett","Romesh Ranganathan","Rose Matafeo","Rosie Ramsey","Sally Phillips","Sam Campbell","Sarah Kendall","Sarah Millican","Sophie Duker","Sophie Willan","Stevie Martin","Susan Wokoma","Susie Dent","Tim Key"];
+              
+              // #16
+              cats["Animal Crossing Fish"] = ["Anchovy","Angelfish","Arapaima","Arowana","Barred Knifejaw","Mahi-Mahi","Betta","Bitterling","Bluegill","Carp","Catfish","Char","Crucian Carp","Dab","Dace","Dorado","Flounder","Gar","Goby","Goldfish","Guppy","Horse Mackerel","Killifish","Koi","Loach","Marlin","Neon Tetra","Pale Chub","Perch","Pike","Piranha","Pond Smelt","Red Snapper","Saddled Bichir","Salmon","Sea Horse","Snakehead","Stringfish","Sturgeon","Sweetfish","Tilapia","Trevally","Trout","Tuna","Whitefish"];
+              
+              // #17
+              cats["Warrior Cats"] = ["Ashfur","Barley","Blackstar","Bluestar","Breezepelt","Brightheart","Cinderkit","Clawface","Crookedstar","Dustpaw","Feathertail","Fireheart","Goldenflower","Graystripe","Halftail","Jagged Peak","Leopardstar","Longtail","Mothwing","Mudclaw","Nightstar","Oakheart","One Eye","Purdy","Raggedstar","Ravenpaw","Redtail","Riverstar","Runningnose","Runningwind","Sandpaw","Sandstorm","Scourge","Smudge","Spottedleaf","Stonefur","Stormfur","Swampkit","Tallstar","Thornkit","Tigerclaw","Wetfoot","Whitestorm","Willowpelt","Yellowfang"];
+              
+              // #18.  Censored:  
+              cats["Things in my Jeep"] = ["3 Quarters","American flag","Bag of trash","Basketball","A Battery","Beach towels","Bottled water","Boxing gloves","Broken stapler","Bug spray","Cashew nuts","Condoms","Crumpled paper","Dreamcatcher","Dress Shoes","Extra socks","Football","Golf Club","Hacky-Sack","Hairspray","Handy wipes","House keys","Insurance","Mini-cooler filled with healthy snacks","Old boots","Old wallet","Paper towels","Phone charger","Pocket Knife","Registration","Roadmap","Rubber Band","Sharpie","Shopgirl: A Novella","Sleeping bag","Soda can","Sunblock","Surfboard","Sweatshirt","Tape of the Jimi Hendrix Experience","Toothbrush","Toothpaste","Toy car","Two folding chairs","Umbrella"];
+              
+              // #19.  Censored:  
+              cats["Nancy Drew Books"] = ["Secret of the Old Clock","Hidden Staircase","Bungalow Mystery","Mystery at Lilac Inn","Secret of Shadow Ranch","Secret of Red Gate Farm","Clue in the Diary","Nancy's Mysterious Letter","Sign of the Twisted Candles","Password to Larkspur Lane","Clue of the Broken Locket","Message in the Hollow Oak","Mystery of the Ivory Charm","Whispering Statue","Haunted Bridge","Clue of the Tapping Heels","Mystery of the Brass-Bound Trunk","Mystery of the Moss Covered Mansion","Quest of the Missing Map","Clue in the Jewel Box","Secret in the Old Attic","Clue in the Crumbling Wall","Mystery of the Tolling Bell","Clue in the Old Album","Ghost of Blackwood Hall","Clue of the Leaning Chimney","Secret of the Wooden Lady","Clue of the Black Keys","Mystery at the Ski Jump","Clue of the Velvet Mask","Ringmaster's Secret","Scarlet Slipper Mystery","Witch Tree Symbol","Hidden Window Mystery","Haunted Showboat","Secret of the Golden Pavilion","Clue in the Old Stagecoach","Mystery of the Fire Dragon","Clue of the Dancing Puppet","Moonstone Castle Mystery","Clue of the Whistling Bagpipes","Phantom of Pine Hill","Mystery of the 99 Steps","Clue in the Crossword Cipher","Spider Sapphire Mystery"];
+              
+              // #20.  Censored:  
+              cats["TikTok Songs"] = ["End of Beginning","Man I Need","So Hot You're Hurting My Feelings","It's All Coming Back to Me Now","Abcdefu","About Damn Time","Telepatía","Bored in the House","Beggin","Best Friend","All Too Well","Wait a Minute!","Drivers License","Say So","Savage","Meet Me at Our Spot","Good 4 U","Heat Waves","As It Was","Montero","WHERE IS MY HUSBAND!","Kiss Me More","Breakin' Dishes","Maneater","Rock That Body","BIRDS OF A FEATHER","i like the way you kiss me","bad idea right?","Kill Bill","Efecto","Cool for the Summer","Numb Little Bug","Boyfriend","Woman","Daisy","Body","Boss Bitch","Heather","feel something","Promiscuous","Sweater Weather","positions","Stunnin'","Old Town Road","7 rings"];
+              
+              // #21.  Censored: 
+              cats["Stardew Valley"] = ["Wild Horseradish","Daffodil","Leek","Dandelion","Spice Berry","Rabbit's Foot","Winter Root","Crystal Fruit","Snow Yam","99 Wood","99 Stone","10 Hardwood","Cave Carrot","Fried Egg","Pine Tar","Oak Resin","Morel","Cauliflower","Hot Pepper","Large Milk","Wool","Duck Egg","Truffle Oil","Copper Bar","Iron Bar","Gold Bar","Quart","Earth Crystal","Frozen Tear","Fire Quartz","99 Slime","10 Batwing","Solar Essence","Void Essence","Maki Roll","Sea Urchin","Sunflower","Duck Feather","Red Cabbage","Frozen Geode","Nautilus Shell","Parsnip","10 Wheat","10 Hay","3 Apples"];
+              
+              // #22  Censored:  
+              cats["Board Games"] = ["Codenames","Ticket to Ride","Catan","Azul Duel","Listography","Captain Sonar","Monopoly","Battleship","Boggle","Clue","Mastermind","Uno","Operation","Risk","Wingspan","Stratego","Lords of Waterdeep","Carcassonne","Dixit","Scrabble","Sorry!","Terraforming Mars","7 Wonders","Between Two Castles","Kingdomino","Pandemic","Mysterium","Betrayal at the House on the Hill","Hues and Cues","Coup","Blokus","Mancala","Sheriff of Nottingham","Tokaido","Finspan","Wyrmspan","Abducktion","Cards Against Humanity","Skip-Bo","Trouble","Chess","Checkers","Candy Land","Exploding Kittens","Apples to Apples"];
+              
+              // #23.  Censored: 
+              cats["Female Artists"] = ["Artemisia Gentileschi","Yoko Ono","Mary Cassatt","Georgia O'Keeffe","Frida Kahlo","Faith Ringgold","Kara Walker","Alma Thomas","Marina Abramović","Cindy Sherman","Julie Mehretu","Ana Mendieta","Hilma af Klint","Sofonisba Anguissola","Élisabeth Vigée Le Brun","Tamara de Lempicka","Yayoi Kusama","Louise Bourgeois","Angelica Kauffman","Alice Neel","Eva Hesse","Lee Krasner","Helen Frankenthaler","Judy Chicago","Beatrix Potter","Anni Albers","Bridget Riley","Méret Oppenheim","Maya Lin","Emily Carr","Kay Sage","Alice Rahon","Sonia Delaunay","Rosa Bonheur","Suzanne Valadon","Natalia Goncharova","Clementine Hunter","Camille Claudel","Marianne von Werefkin","Barbara Kruger","Dorothea Lange","Leonora Carrington","Jenny Holzer","Barbara Hepworth","Tracey Emin"
+];
+              
+              // #24
+              cats["Pocket Foods"] = ["Dumpling","Gyoza","Empanada","Hand Pie","Khachapuri","Kibbeh","Mandu","Momo","Baozi","Panzarotti","Pasticciotto","Patty","Pierogi","Pupusa","Ravioli","Samosa","Spanakopita","Tamale","Turcos","Turnover","Wonton","Qatayef","Taiyaki","Hot Pocket","Poptart","Arepita","Bua Loy","Gujiya","Modak","Vareniki","Pelmeni","Kreplach","Khinkali","Carimañola","Sambusa","Tortellini","Coxinha","Croquette","Calzone","Crab rangoon","Uncrustable","Totino’s pizza roll","Kolduny","Aushak","Banh bot loc"];
+              
+              // #25.  Censored: 
+              cats["AO3 Tags"] = ["Hurt/Comfort","Angst","Whump","Alpha/Beta/Omega Dynamics","No beta we die like (___)","Fluff","Not Canon Compliant","Smut","Crack treated seriously","Time Travel Fix-It","Idiots in Love","Unrequited Love","Past trauma","Fake Relationship","Enemies With Benefits","Character Study","Soulmate AU","Arranged Marriage","Childhood Friend","Dead Dove: Do Not Eat","Slow Burn","The author regrets nothing","Angst with a happy ending","Bodyswap","Found Family","Enemies to Lovers","Friends to Lovers","Lovers to Enemies","Sharing a bed","Hanahaki","Identity porn","Porn with feelings","Hurt/No Comfort","Mutual Pining","Memory Loss","Unresolved Sexual Tension","Accidental Baby Acquisition","Miscommunication","Established Relationship","Sex Pollen","Tentacles","Mpreg","Major Character Death","Denial of Feelings","Banter"];
+              
+              // #26.  Censored:  
+              cats["Sailing Terms"] = ["Anchor","Apparent wind","Ashore","Baggywrinkle","Bareboat","Beam","Berth","Boom","Bow","Bridle","Catamaran","Dinghy","Draft","Dunsel","Ease","Fender","Forepeaks","Galley","Genoa","Gybe","Halyard","Head","Helm","Hold","Hull","In Irons","Iron Mike","Keel","Knots","Mainsail","Mast","Mooring","Port Side","Prow","Quay","Reefing","Rip Rap","Sails","Saloon","Starboard","Stern","Tacking","Trim","True wind direction","Winch"];
+              
+              // #27.  Censored: 
+              cats["Survivor Contestants"] = ["Terry Deitz","Bob Crowley","Amber Brkich","Tai Trang","Johnny Fairplay","Colby Donaldson","Tina Wesson","James Clement","Kass McQuillen","Aras Baskauskas","Yau-Man Chan","Malcolm Freberg","Rupert Boneham","Andrea Boehlke","Amanda Kimmel","Ozzy Lusth","Kelley Wentworth","Sugar Kiper","Courtney Yates","Jonathan Penner","Yul Kwon","Tom Westman","Shambo Waters","J.T. Thomas","Erik Reichenbach","Tyson Apostol","Parvati Shallow","Shane Powers","John Cochran","Richard Hatch","Phillip Sheppard","Sandra Diaz-Twine","Cirie Fields","Russell Hantz","Benjamin Wade","Rob Mariano","Jerry Manthey","Lex van den Berghe","Stephen Fishbach","Spencer Bledsoe","Tony Vlachos","Danielle DiLorenzo","Candice Woodcock","Jeff Varner","Zeke Smith"];
+              
+              // #28.  Censored: 
+              cats["Greek Deities"] = ["Aeolus","Aphrodite","Apollo","Ares","Artemis","Athena","Atlas","Chaos","Chronos","Coeus","Crius","Demeter","Dionysus","Erebus","Eris","Eros","Gaia","Hades","Hecate","Helios","Hephaestus","Hera","Hermes","Hestia","Hyperion","Hypnos","Iapetus","Kronos","Leto","Mnemosyne","Moros","Morpheus","Nemesis","Nyx","Oceanus","Pan","Persephone","Poseidon","Prometheus","Selene","Tethys","Thanatos","Theia","Themis","Zeus"];
+              
+              // #29
+              cats["Yankee Candles"] = ["Aloe Water","Amber Glow","Angel's Wings","Apple Cider","April Showers","Autumn Dusk","Autumn Leaves","Bahama Breeze","Balsam fir","Bakery Air","Beach Escape","Beach Wood","Berry Colada","Blue Satin Sashes","Brown Paper Packages","Calla Lily","A Child's Wish","Chocolate Bunnies","Citrus Tango","City Lights","Clean Cotton","Coconut Bay","Crisp Spruce","Pink Sands","Drift Away","Early Sunrise","Eucalyptus","Fall Festival","Fireside","Fluffy Towels","Fresh Cut Roses","Frosty air","Garden Cucumber","Ginger Dusk","Good Morning","Golden Honey","Storm Watch","Green Bamboo","Island Spa","Juicy Orange","Lavender Vanilla","Life's A Breeze","Soft Blanket","Meadow Mist","Midnight Jasmine"];
+              
+              // #30.  Censored:   
+              cats["Barbie Careers"] = ["Aircraft engineer","Bee keeper","Biochemist","Bowler","Boxer","Cake baker","Canadian Mountie","Candy striper","Cat burglar","Cinematographer","Cowgirl","Dentist","Dolphin trainer","Drum majorette","Entomologist","Equestrienne","Eye Doctor","Firefighter","Soda fountain waitress","Florist","Food truck operator","Game developer","General manager","Ice cream shop worker","Jillaroo","Pasta Chef","Marine biologist","Mary Kay consultant","Matador","Math teacher","Noodle bar worker","Ocean treasure explorer","Olympic climber","Park ranger","Pilot","President","Rapper","Scuba Diver","Sports reporter","Spy","Surgeon","Train conductor","Usher","Yoga teacher","Zoologist"];
+              
+              // #31.  Censored:  
+              cats["Books Morgan Has Read"] = ["Hunger Games","Divergent","The Wrath and the Dawn","Red Queen","Six of Crows","Shadow and Bone","The Cruel Prince","Graceling","The Selection","The Demon King","City of Bones","Clockwork Angel","Matched","Endgame","Rebel of the Sands","Gideon the Ninth","The Dark Tide","Legend","Skyhunter","The Young Elites","The Assassin's Blade","A Court of Thorns and Roses","Shatter Me","A Feast for Crows","The Glittering Court","Cress","The Song of Achilles","Sabriel","A Deadly Education","Spinning Silver","Uprooted","Captive Prince","The Angel Experiment","The Summer War","The Subtle Knife","The Lightning Thief","The Tiger's Daughter","The Name of the Wind","The Winner's Curse","Priory of the Orange Tree","The Dream Thieves","Apparently, Sir Cameron Needs to Die","The Burning Sky","Iron Widow","The Descent of Monsters"];
+              
+              // #32.  Censored: 
+              cats["Survivor Tribes"] = ["Pagong","Morgan","Sook Jai","Rotu","Rattana","Chuay Gahn","Chuay Jai","Moto Maji","Drake","The Outcasts","Koror","Ulong","Moto","Ravu","Fei Long","Manihiki","La Mina","Casaya","Airai","Hae Da Fung","Fang","Kota","Yin Yang","Foa Foa","Galu","Aiga","Nobag","Malakal","Espada","La Flor","Upolu","Savaii","Zapatera","Puka Puka","Libertad","Te Tuna","Enil Edam","Aparri","Coyopa","Gota","Murlonio","Dangrayne","Manono","Merica","Malolo"];
+              
+              // #33.  Censored: 
+              cats["Patterns"] = ["Polka Dot","Striped","Chinoiserie","Argyle","Herringbone","Chevron","Gingham","Plaid","Tartan","Houndstooth","Batik","Paisley","Bull's Eye","Damask","Botanical","Boteh","Twill","Calico","Toile","Celtic Knot","Quatrefoil","Moroccan","Checkered","Camo","Cheetah","Chintz","Diaper","Geometric","Ditzy","Egg and Dart","Fleur-de-lis","Foulard","Greek Key","Frieze","Pinstripe","Half Drop","Harlequin","Herati","Arabesque","Lane's Net","Madras","Millefleurs","Sateen Repeat","Satin Weave","Stipple"];
+              
+              // #34.  Censored:  
+              cats["Music Theory"] = ["Tempo","Acapella","Adagio","Alto","Arpeggio","Rhythm","Aria","Chord","Coda","Decelerando","Fermata","Forte","Fortepiano","Fortississimo","Glissando","Grace note","Falsetto","Legato","Measure","Baritone","Mezzo","Octave","Overture","Pedale","Pizzicato","Prelude","Prima volta","Quarter tone","Rapido","Riff","Ritardando","Rondo","Scale","Scherzo","Segno","Semitone","Sharp","Flat","Slur","Solo","Sonata","Soprano","Sotto voce","stanza","Tenor"];
+              
+              // #35.  Censored:  
+              cats["Kinds of Cereal"] = ["Reese's Puffs","Cap'n Crunch","Cheerios","Honey Bunches of Oats","Grape Nuts","Froot Loops","Apple Jacks","Frosted Flakes","Chex","Cinnamon Toast Crunch","Cocoa Puffs","Corn Flakes","Corn Pops","Count Chocula","Frosted Mini Wheats","Fiber One","Special K","Lucky Charms","Cookie Crisp","French Toast Crunch","Golden Grahams","Raisin Bran","Honeycomb","Kix","Franken Berry","Boo Berry","Oatibix","Oat Flakes","Fruity Pebbles","Peanut Butter Toast Crunch","Cocoa Pebbles","Puffed Rice","Quisp","Rice Krispies","Cocoa Krispies","Total","Trix","Wheaties","Oat Bran","Krave","Cinnamon Life","Bran Flakes","Crispix","Cream of Wheat","Granola"];
+              
+              // #36.  Censored:  
+              cats["Crimes"] = ["Public Intoxication","Art Forgery","Attempted Murder","Motor Vehicle Theft","Cannibalism","False Advertising","Embezzlement","Tax Evasion","Perjury","False Evidence","Loitering","Kidnapping","Sexual Harassment","Illegal Fireworks","Obstruction of Justice","Medical Malpractice","Homicide","Manslaughter","Assassination","Terrorism","Arson","Animal Theft","Theft","Usury","Vandalism","Looting","Fraud","Sedition","Stalking","Hacking","Identity Theft","Shoplifting","Wage Theft","Rioting","Robbery","Torture","Assault","Battery","Home Invasion","Smuggling","Poaching","Animal Cruelty","Conspiracy","Espionage","Piracy"];
+              
+              // #37.  Censored: 
+              cats["Colorado Cities"] = ["Alamosa","Arvada","Aspen","Aurora","Boulder","Breckenridge","Brighton","Broomfield","Cañon City","Castle Pines","Castle Rock","Centennial","Colorado Springs","Commerce city","Crested Butte","Denver","Durango","Englewood","Estes Park","Fort Collins","Fort Morgan","Fruita","Glenwood Springs","Golden","Grand Junction","Greeley","Gunnison","Highlands Ranch","Lafayette","Lakewood","Lamar","Littleton","Lone Tree","Monument","Parker","Pueblo","Salida","Sheridan","Silverthorne","Steamboat Springs","Sterling","Telluride","Thornton","Vail","Westminster"]
+              
+              // #38
+              cats["Las Vegas"] = ["Flamingo","The Saharah","The Linq","Caesars Palace","Circus Circus","Harrah's","Horseshoe","The Cromwell","Excalibur","Luxor","MGM Grand","The Strat","Park MGM","New York New York","Bellagio","Mandalay Bay","The Venetian","Paris","Planet Hollywood","Wynn","The Palazzo","Encore","Cosmopolitan","Resorts World","Fontainebleau","Hard Rock","Bally's","ARIA","Casino Royale","Dream","Waldorf Astoria","Vdara","CityCenter","Slots-A-Fun","Boardwalk","The Mirage","Tropicana","Stardust","Thunderbird","Four Seasons","Golden Gate","Mardi Gras","Palms Place","O'Sheas","Tuscany"];
+              
+              // #39  Censored: 
+              cats["Blue"] = ["Sky","Navy","Azure","Cobalt","Sapphire","Cerulean","Royal","Lapis","Indigo","Turquoise","Ultramarine","Aquamarine","Teal","Cyan","Baby","Arctic","Peacock","Spruce","Denim","Ocean","Powder","Electric","Beryl","Midnight","Cornflower","Periwinkle","Aqua","Prussian","Carolina","Klein","Robin Egg","Phthalo","Uranian","Aegean","Slate","Steel","Tiffany","True ","Chlorine","Persian","Munsell","Ruddy","Delft","Argentinian","Cadmium"];
+              
+              // #40  Censored: 
+              cats["Piercings"] = ["Earlobe","Helix","Industrial","Orbital","Rook","Tragus","Daith","Vertical Conch","Bridge","Septum","Nostril","Cheek","Eyebrow","Angel Bites","Labret","Philtrum","Snake Bites","Anti-Tragus","Frenulum","Tongue","Venom","Anal","Perineum","Jacob's Ladder","Prince Albert","Reverse Prince Albert","Collarbone","Nipple","Bellybutton","Snug","Vertical Helix","Transverse Lobe","Anti-Eyebrow","Horizontal Eyebrow","Surface Tragus","Dahlia","Dolphin Bites","Kitty Bites","Madonna","Clitoral","Labia","Spider Bites","Shark Bites","Jestrum","Vampire Bites"];
+              
+              // #41
+              cats["Diets"] = ["Intermittent Fasting","Nutrisystem","Weight Watchers","Inedia","Atkins","Dukan","Low-fat","Cabbage soup","Master Cleanse","Juice Detox","Gluten Free","Keto","Liquid","Low FODMAP","Clean eating","Fruitarian","Fit for Life","Egg and wine","Bulletproof","Scarsdale medical","4-Hour body","McDougall","Pritikin","Rice","Slim-Fast","Carnivore","Vegetarian","Vegan","Detox","Wheatgrass","Blood Type","Immune Power","Werewolf","Protein-sparing","Pollotarian","Pescetarian","Plant-based","Alkaline","Climatarian","Graham","Hay","Jenny Craig","Locavore","Low glycemic index","Mediterranean"];
+              
+              // #42
+              cats["Apples"] = ["Fuji","McIntosh","Golden Delicious","Honeycrisp","Envy","Ambrosia","Gala","Granny Smith","SugarBee","SweeTango","Royal Gala","Pink Lady","Jazz","Pacific Rose","Cosmic Crisp","Red Delicious","Braeburn","Cameo","Crimson Delight","Evercrisp","Lady Alice","Opal","Pazazz","Piñata","Rome","Baldwin","Cortland","Crispin","Cripp's Pink","Golden Noble","Graniwinkle","Green Pippin","Grimes Golden","Haralson","Magnum Bonum","Melrose","Michelin","Pink Pearl","Pink Pearmain","Pink Princess","Sayaka","Spartan","Suncrisp","Sundance","Willow Twig"];
+              
+              // #43
+              // cats["45"] = [ "vyf-en-veertig", "Ø®Ù…Ø³Ø© ÙˆØ£Ø±Ø¨Ø¹ÙˆÙ†", "à¦ªà¦à¦¯à¦¼à¦¤à¦¾à¦²à§à¦²à¦¿à¦¶", "quaranta-cinc", "å››åäº”", "ÄtyÅ™icet pÄ›t", "femogfyrre", "vijfenveertig", "kvardek kvin", "apatnapu't lima", "neljÃ¤kymmentÃ¤viisi", "quarante-cinq", "fÃ¼nfundvierzig", "ÏƒÎ±ÏÎ¬Î½Ï„Î± Ï€Î­Î½Ï„Îµ", "××¨×‘×¢×™× ×•×—×ž×©", "à¤ªà¥ˆà¤‚à¤¤à¤¾à¤²à¥€à¤¸", "negyvenÃ¶t", "fjÃ¶rutÃ­u og fimm", "empat puluh lima", "daichead a cÃºig", "quarantacinque", "å››åäº”", "ë§ˆí”ë‹¤ì„¯", "quadraginta quinque", "Äetrdesmit pieci", "keturiasdeÅ¡imt penki", "empat puluh lima", "Ä§amsa u erbgÄ§in", "fÃ¸rtifem", "Ú†Ù‡Ù„ Ùˆ Ù¾Ù†Ø¬", "czterdzieÅ›ci piÄ™Ä‡", "quarenta e cinco", "patruzeci È™i cinci", "ÑÐ¾Ñ€Ð¾Ðº Ð¿ÑÑ‚ÑŒ", "dÃ  fhichead 's a cÃ²ig", "Å¡tyridsaÅ¥pÃ¤Å¥", "petinÅ¡tirideset", "cuarenta y cinco", "arobaini na tano", "fyrtiofem", "à¸ªà¸µà¹ˆà¸ªà¸´à¸šà¸«à¹‰à¸²", "kÄ±rk beÅŸ", "ÑÐ¾Ñ€Ð¾Ðº Ð¿'ÑÑ‚ÑŒ", "bá»‘n mÆ°Æ¡i lÄƒm", "pedwar deg pump" ];
+              
+              // #43 (Replacement).  Censored: 
+              cats["Categories"] = ["Cookies","Taskmaster","Fruit","Animal Crossing","Cinderella Stories","Art Materials","Lady Gaga","Cognates","DC Characters","Extinct Animals","Say Yes to the Dress","Pigeons","Wine Types","Nic Cage","Coffee","Tribes","Fish ","Warrior Cats","Things in my Jeep","Nancy Drew","TikTok Songs","Stardew Valley","Board Games","Female Artists","Pocket Foods","Sailing","AO3 Tags","Survivor Contestants","Greek Deities","Yankee Candles","Barbie Careers","Spices","Novels","Patterns","Music Terms","Cereal","Crimes","Colorado","Las Vegas","Piercings","Blue","Diets","Apples","Lakes","Categories"];
+              
+              // #44.  Censored: Public Health (College Major)
+              // cats["Medical Specialties"] = ["Surgery", "Internal medicine", "Pediatrics", "Emergency medicine", "Anesthesiology", "Neurology", "Family medicine", "Obstetrics", "Gynaecology", "Psychiatry", "Pathology", "Ophthalmology", "Immunology", "Dermatology", "Urology", "Cardiology", "Radiology", "Orthopedics", "Gastroenterology", "Oncology", "Rheumatology", "Nephrology", "Hematology", "Sleep medicine", "Pulmonology", "Endocrinology", "Forensic pathology", "Geriatrics", "Podiatry", "Infectious diseases", "Medical genetics", "Otolaryngology", "Plastic surgery", "Sports medicine", "Thoracic Surgery", "Medical Toxicology", "Nuclear medicine", "Preventive medicine", "Physical medicine", "Trauma Surgery", "Cardiothoracic Surgery", "Vascular Surgery", "Neonatology", "Pediatric Intensivist", "Neurosurgery"];
+              
+              // #45
+              cats["Minnesota Lakes"] = ["Superior","Hiawatha","Of the Isles","Brownie","Maka Ska","Cedar","Cemetery","Diamond","Harriet","Loring","Nokomis","Powderhorn","Wirth","Birch","Mead","Minnetonka","Vermilion","Kabetogama","Leech","Mille Lacs","Winnibigoshish","Otter Trail","Of the Woods","Ash (South)","Bear Island","Bemidji","Red (Lower)","Pepin","Basswood","Pokegama","Lac qui Parle","Waconia","Albert Lea","White Bear","Wild Rice","Okamanpeedan","Kabekona","Geneva","Tetonka","Siseebakwet","Gabimichigami","Wood","Itasca","Little Winnibigoshish","Medicine"];
+              
+              // Replacement for #44.
+              cats["Spices"] = ["Anise","Allspice","Aji","Adobo","Chili Powder","Bay Leaf","Vanilla Extract","Garlic Powder","Onion Powder","Garlic Salt","Brown Sugar","Cinnamon","Cloves","Coriander","Cumin","Ginger Powder","Lemon Juice","Nutmeg","Oregano","Basil","Paprika","Salt","Black Pepper","Rosemary","Saffron","Sage","MSG","Caraway","Thyme","Zaatar","Sumac","Soy Sauce","Sesame Seeds","Poppy Seeds","Parsley","Garam Masala","Five Spice","Fennel","Tarragon","Tandoori","Red Pepper Flakes","Dill Seed","White Pepper","Cajun","Lawry's"];
+       
+            // Functions
+            
+            function deselect() {
+              if (selected != 0) {
+                selected.style = "";
+                selected = 0;
+                document.getElementById("deselect").disabled = true;
+              }
+            }
+            
+            function stringToLightColor(str) {
+              let hash = 0;
+              for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+              }
+
+              const h = Math.abs(hash) % 360;
+              const s = 70;
+              const l = 80 + (Math.abs(hash) % 10); 
+
+              const lDev = l / 100;
+              const a = (s * Math.min(lDev, 1 - lDev)) / 100;
+  
+              const f = (n) => {
+                const k = (n + h / 30) % 12;
+                const color = lDev - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, "0");
+              };
+
+              return `#${f(0)}${f(8)}${f(4)}`;
+            }
+            
+            function getRandomHexColor() {
+              return '#' + Math.floor(Math.random() * 16777215).toString(16);
+            }
+            
+            function finishCategory(b) {
+              b.innerHTML  =  '<b>' + b.category + '</b>';
+              b.disabled = true;
+              b.style.background= stringToLightColor(b.category);
+            }
+            
+            function checkCategories() {
+              const wordDict = new Map();
+              // Check that each category has 45 entries.
+              for (const [key, value] of Object.entries(cats)) {
+                if (value.length < 45) {
+                  alert(`Entry for ${key} has length ${value.length}`);
+                }
+                for (let i = 0; i < 45; i++) {
+                  wordlist.push([value[i], key]);
+                  if (wordDict.has(value[i])) {
+                      alert(`Duplicate word ${value[i]}`);
+                  }
+                  else {
+                      wordDict.set(value[i], true);
+                  }
+                }
+              }
+            }
+            
+            function shuffleArray(array) {
+              for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+              }
+            }
+            
+            function saveState() {
+                localStorage.clear();
+                
+                localStorage.setItem('score', score + '');
+                localStorage.setItem('mistakes', mistakes + '');
+                
+                var t = document.getElementById('the_table');
+                for (let i = 0; i < t.rows.length; i++) {
+                  let row = t.rows[i];
+                  for (let j = 0; j < row.cells.length; j++) {
+                    let cell = row.cells[j];
+                    let button = cell.firstChild;
+                    localStorage.setItem(`${i}_${j}_category`, button.category);
+                    localStorage.setItem(`${i}_${j}_cluster`, JSON.stringify(button.cluster));
+                    localStorage.setItem(`${i}_${j}_innerHTML`, button.innerHTML);
+                    localStorage.setItem(`${i}_${j}_title`, button.title);
+                  }
+                }
+                
+            }
+            
+            function putWordsInBoard() {
+              shuffleArray(wordlist);
+              var currentWordIndex = 0;
+              var table = document.getElementById("the_table");
+              for (let i = 0, row; row = table.rows[i]; i++) {
+                for (let j = 0, col; col = row.cells[j]; j++) {
+                  var button = col.firstElementChild;
+                  // button.pos = currentWordIndex;
+                  button.textContent = wordlist[currentWordIndex][0];
+                  button.category = wordlist[currentWordIndex][1];
+                  button.cluster = [button.textContent];
+                  currentWordIndex += 1;
+                }
+              }
+            }
+            
+            function startFireworks() {
+              const canvas = document.getElementById('fireworks');
+              const ctx = canvas.getContext('2d');
+              let w, h;
+              let particles = [];
+              let fireworks = [];
+
+              function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+              }
+              window.addEventListener('resize', resize);
+              resize();
+
+              class Firework {
+                constructor() {
+                    this.x = Math.random() * w;
+                    this.y = h;
+                    this.tx = Math.random() * w;
+                    this.ty = Math.random() * (h / 2);
+                    this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    this.speed = 2 + Math.random() * 2;
+                    this.angle = Math.atan2(this.ty - this.y, this.tx - this.x);
+                    this.vx = Math.cos(this.angle) * this.speed;
+                    this.vy = Math.sin(this.angle) * this.speed;
+                    this.exploded = false;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.vy < 0 && this.y < this.ty) {
+                        this.explode();
+                    } else if (this.vy > 0 && this.y > this.ty) { // Should technically not happen with simple upward movement
+                         this.explode();
+                    }
+                }
+
+                explode() {
+                    this.exploded = true;
+                    for (let i = 0; i < 50; i++) {
+                        particles.push(new Particle(this.x, this.y, this.color));
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                }
+              }
+
+              class Particle {
+                constructor(x, y, color) {
+                    this.x = x;
+                    this.y = y;
+                    this.color = color;
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 3;
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    this.alpha = 1;
+                    this.decay = Math.random() * 0.015 + 0.005;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += 0.05; // gravity
+                    this.alpha -= this.decay;
+                }
+
+                draw() {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.restore();
+                }
+              }
+
+              function loop() {
+                // Clear with a trail effect
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; 
+                ctx.fillRect(0, 0, w, h);
+                ctx.globalCompositeOperation = 'lighter';
+
+                // Launch new firework randomly
+                if (Math.random() < 0.05) {
+                    fireworks.push(new Firework());
+                }
+
+                // Update and draw fireworks
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    fireworks[i].update();
+                    fireworks[i].draw();
+                    if (fireworks[i].exploded) {
+                        fireworks.splice(i, 1);
+                    }
+                }
+
+                // Update and draw particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    particles[i].update();
+                    particles[i].draw();
+                    if (particles[i].alpha <= 0) {
+                        particles.splice(i, 1);
+                    }
+                }
+
+                requestAnimationFrame(loop);
+              }
+
+              loop();
+            }
+            
+            function setUpBoard() {
+              // Just sets up the dom elements; does not put words in them.
+              var b = document.getElementById("board");   
+              const table = document.createElement('table');
+              table.id = 'the_table';
+              for (let i = 0; i < M; i++) {
+                const tr = document.createElement('tr');
+                tr.classList.add('.row');
+                for (let j = 0; j < M; j++) {
+                   const td = document.createElement('td');
+                   td.class = "bigbut";
+                   const button = document.createElement('button');
+                   button.class = "bigbut"
+                   button.onclick = function() {
+                       if (selected == button) {
+                         deselect();
+                         return;
+                       }
+                       button.style = "filter: invert(100%)";
+                       
+                       if (selected == 0) {
+                           selected = button;
+                           document.getElementById("deselect").disabled = false;
+                           return;
+                       }
+                       
+                       document.getElementById("deselect").disabled = true;
+
+                       if (button.category == selected.category) {
+                         
+                         firstbut = button;
+                         secondbut = selected;
+                         
+                         // Deselect
+                         selected.style = "";
+                         button.style = "";
+                         selected = 0;
+                         score = score + 1;
+                         
+                         // Merge
+                         firstbut.cluster = firstbut.cluster.concat(secondbut.cluster);
+                         // console.log(firstbut.cluster);
+                         if (firstbut.cluster.length == 2) {
+                           firstbut.innerHTML = '<b>' + firstbut.cluster.join('; ') + '</b>';
+                         } else {
+                           firstbut.innerHTML = '<b>' + firstbut.cluster.slice(0, 2).join(', ') + ', ... <span class="red">[' + firstbut.cluster.length + ']</span></b>';
+                           firstbut.title = firstbut.cluster.join('\n');
+                         }
+                         if (firstbut.cluster.length == 45) {
+                             finishCategory(firstbut);
+                         }
+                         
+                         document.getElementById("score").textContent = score;
+                         // Remove the button for the eliminated word.
+                         secondbut.title = '';
+                         // if (currentWordIndex < wordlist.length) {
+                         //  secondbut.textContent = wordlist[currentWordIndex][0];
+                         //  secondbut.category = wordlist[currentWordIndex][1];
+                         // secondbut.cluster = [secondbut.textContent];
+                         //  currentWordIndex += 1;
+                         // } else {
+                             secondbut.textContent = '';
+                             secondbut.disabled = true;
+                             
+                             // Remove not just the button but the entire <td>.
+                             secondbut.parentElement.remove();
+                        // }
+                         
+                       } else {
+                         mistakes = mistakes + 1;
+                         document.getElementById("mistakes").textContent = mistakes;
+                         // Shake it
+                         button.classList.add('shake');
+                         selected.classList.add('shake');
+                         
+                         button.addEventListener('animationend', () => {
+                           button.classList.remove('shake');
+                           button.style = "";
+                         }, { once: true });
+  
+                         old_selected = selected;
+                         old_selected.addEventListener('animationend', () => {
+                           old_selected.classList.remove('shake');
+                           old_selected.style = "";
+                         }, { once: true });
+  
+                         selected = 0;
+                       }
+                       saveState();
+                       if (score == 1980) {
+                           window.alert("You win!!");
+                           startFireworks();
+                       }
+                   };
+                   td.appendChild(button);
+                   tr.appendChild(td);
+                }
+                table.appendChild(tr);
+              }
+              
+              document.getElementById("board").appendChild(table);
+            }
+            
+            function loadState() {
+                s = localStorage.getItem('score');
+                if (s == null) {
+                    putWordsInBoard();
+                    return;
+                }
+                score = Number(s);
+                document.getElementById("score").textContent = score;
+                
+                s = localStorage.getItem('mistakes');
+                if (s == null) {
+                    putWordsInBoard();
+                    return;
+                }
+                mistakes = Number(s);
+                document.getElementById("mistakes").textContent = mistakes;
+                
+                var currentWordIndex = 0;
+                var table = document.getElementById("the_table");
+                var cells_to_remove = [];
+                for (let i = 0, row; row = table.rows[i]; i++) {
+                  for (let j = 0, col; col = row.cells[j]; j++) {
+                    var button = col.firstElementChild;
+                    // button.pos = currentWordIndex;
+                    button.category = localStorage.getItem(`${i}_${j}_category`);
+                    button.cluster = JSON.parse(localStorage.getItem(`${i}_${j}_cluster`));
+                    if (Array.isArray(button.cluster) && button.cluster.length == 45) {
+                        finishCategory(button);
+                    }
+                    button.innerHTML = localStorage.getItem(`${i}_${j}_innerHTML`);
+                    button.title = localStorage.getItem(`${i}_${j}_title`);
+                    currentWordIndex += 1;
+                    if (button.innerHTML == '') {
+                        // No word here, remove the whole <td>
+                        cells_to_remove.push(col);
+                    }
+                  }
+                }
+                for (let i = 0; i < cells_to_remove.length; i++) {
+                    cells_to_remove[i].remove();
+                }
+            }
+            
+            checkCategories();
+            setUpBoard();
+            loadState();
+        </script>
+
+</html>
